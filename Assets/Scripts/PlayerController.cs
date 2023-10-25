@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 startColliderOffset;
     private Vector2 startColliderSize;
 
+    private bool jumpInput = false;
+    float horizontalInput = 0;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -34,11 +37,16 @@ public class PlayerController : MonoBehaviour
         startColliderSize = playerCollider.size;
     }
 
-    private void Update()
-    {
-        bool jumpInput = Input.GetButtonDown("Jump");
-        float horizontalInput = Input.GetAxis("Horizontal");
+    private void Update() {
+        if (!jumpInput && Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpInput = Input.GetButtonDown("Jump");
+        }
+        horizontalInput = Input.GetAxis("Horizontal");
+    }
 
+    private void FixedUpdate()
+    {
         if (horizontalInput < 0)
         {
             transform.localScale = new Vector3(startScale.x * -1, startScale.y, startScale.z);
@@ -81,6 +89,17 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
         animator.SetBool("IsGrounded", isGrounded);
         animator.SetBool("IsClimbing", isClimbing);
+
+        if(jumpInput)
+        {
+            jumpInput = false;
+        }
+
+        if (Mathf.Abs(transform.position.x) >= 10 || Mathf.Abs(transform.position.y) >= 8) {
+            UI.GetComponent<GameManager>().ShowLoss();
+        }
+
+        
     }
 
     private IEnumerator DisableCollision()
